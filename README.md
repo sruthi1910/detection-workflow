@@ -13,5 +13,5 @@ This matches the course: for a PostToolUse hook, exit 2 is what sends the hook's
 **There is no `costThreshold` setting.**
 Section 7.7 mentions it, but Claude Code has no such setting, so nothing was configured. *If you're following the course:* use `/cost` and `/context` to watch usage instead.
 
-**Known limitation of the sensitive-file guard.**
-The deny rules only cover the Read tool, and `check-sensitive.sh` only inspects `tool_input.file_path`. A Bash command such as `cat .env` passes both, and the hook's pattern matches `.env` exactly but not `.env.local`. *If you're adapting this:* also inspect `tool_input.command` for Bash calls, and match `.env*`.
+**Fixed: shell-command bypass of the sensitive-file guard.**
+The original hook only checked `tool_input.file_path`, so the agent could still read a secret with a Bash command such as `cat .env`, and the pattern missed variants like `.env.local`. The hook now also inspects `tool_input.command` and matches `.env*`, `*.key`, `*.pem`, `secrets/` and `credentials/`.
